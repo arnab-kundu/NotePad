@@ -22,4 +22,9 @@ class NoteRepository(private val noteDao: NoteDao) {
     fun deleteSelectedNote(id: Long) {
         return noteDao.deleteSelectedNoteId(id)
     }
+
+    @WorkerThread
+    fun openSelectedNote(id: Long) {
+        return noteDao.selectNote(id)
+    }
 }
