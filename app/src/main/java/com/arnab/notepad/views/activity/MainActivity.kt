@@ -19,12 +19,11 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity(), NoteListAdapter.NoteListItemClickListener {
     val notes = ArrayList<Note>()
+
     lateinit var repository: NoteRepository
     lateinit var mAdapter: NoteListAdapter
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -38,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         //////////////////////////////////////////////////////////////////////////////
         // Set Adapter Only once then call notifyDataSetChange to update adapter data
         //////////////////////////////////////////////////////////////////////////////
-        recycler_view.adapter = NoteListAdapter(notes)
+        recycler_view.adapter = NoteListAdapter(notes, this)
         mAdapter = recycler_view.adapter as NoteListAdapter
 
         //////////////////////////////////////////
@@ -55,11 +54,12 @@ class MainActivity : AppCompatActivity() {
         DBTask().execute()
     }
 
-
     ///////////////////////
     // DataBase AsyncTask
     ///////////////////////
     inner class DBTask : AsyncTask<Void, Void, List<Note>>() {
+
+
         override fun doInBackground(vararg params: Void?): List<Note> {
             return repository.getAllNotes()
         }
@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
             }
             enableSwipeToDeleteAndUndo()
         }
+
     }
 
     override fun onResume() {
@@ -84,7 +85,6 @@ class MainActivity : AppCompatActivity() {
         //////////////////////////////////////////
         DBTask().execute()
     }
-
 
     private fun enableSwipeToDeleteAndUndo() {
 
@@ -129,6 +129,27 @@ class MainActivity : AppCompatActivity() {
         val itemTouchhelper = ItemTouchHelper(swipeToDeleteCallback)
         itemTouchhelper.attachToRecyclerView(recycler_view)
     }
+
+    override fun onItemClick(noteId: Long) {
+        SelectFromDbTask().execute(noteId)
+    }
+
+    inner class SelectFromDbTask : AsyncTask<Long, Void, Note>() {
+        override fun doInBackground(vararg params: Long?): Note {
+            return repository.getSelectedNote(params[0])
+        }
+
+        override fun onPostExecute(result: Note?) {
+            super.onPostExecute(result)
+            val intent = Intent(this@MainActivity, AddNoteActivity::class.java)
+            intent.putExtra("NoteId", result?.id)
+            intent.putExtra("title", result?.title)
+            intent.putExtra("content", result?.content)
+            startActivity(intent)
+        }
+
+    }
+
 }
 /**
  * List is Immutable here. We cannot change List data. No ADD, REMOVE oppression.

@@ -9,8 +9,10 @@ import com.arnab.notepad.R
 import com.arnab.notepad.models.Note
 import kotlinx.android.synthetic.main.row_note.view.*
 
-class NoteListAdapter(val notes: ArrayList<Note>) : RecyclerView.Adapter<NoteListAdapter.NoteViewHolder>() {
+class NoteListAdapter(val notes: ArrayList<Note>, var noteListItemClickListener: NoteListItemClickListener) :
+    RecyclerView.Adapter<NoteListAdapter.NoteViewHolder>() {
 
+    //lateinit var noteListItemClickListener: NoteListItemClickListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.row_note, parent, false)
@@ -26,6 +28,7 @@ class NoteListAdapter(val notes: ArrayList<Note>) : RecyclerView.Adapter<NoteLis
         val note: Note = notes[position]
         holder.tvSubject.text = note.title
         holder.tvDescription.text = note.content
+        holder.noteId = note.id
 
     }
 
@@ -33,10 +36,14 @@ class NoteListAdapter(val notes: ArrayList<Note>) : RecyclerView.Adapter<NoteLis
     inner class NoteViewHolder constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
         lateinit var tvSubject: TextView
         lateinit var tvDescription: TextView
+        var noteId: Long = 0
 
         init {
             tvSubject = itemView.tv_subject
             tvDescription = itemView.tv_description
+            itemView.setOnClickListener {
+                noteListItemClickListener.onItemClick(noteId)
+            }
         }
     }
 
@@ -53,5 +60,9 @@ class NoteListAdapter(val notes: ArrayList<Note>) : RecyclerView.Adapter<NoteLis
 
     fun getData(): ArrayList<Note> {
         return notes
+    }
+
+    interface NoteListItemClickListener {
+        fun onItemClick(noteId: Long)
     }
 }

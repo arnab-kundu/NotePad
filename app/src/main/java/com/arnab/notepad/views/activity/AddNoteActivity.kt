@@ -15,6 +15,7 @@ class AddNoteActivity : AppCompatActivity() {
 
 
     lateinit var repository: NoteRepository
+    var noteId: Long? = null
 
     companion object {
         //This is compile one time only. So taking currentTime like this is a wrong way.
@@ -24,6 +25,14 @@ class AddNoteActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_note)
+
+        val bundle = intent.extras
+        noteId = bundle?.getLong("NoteId")
+        val title: String? = bundle?.getString("title")
+        val content: String? = bundle?.getString("content")
+
+        et_subject.setText(title)
+        et_description.setText(content)
 
 
         val noteDao = NoteDatabase.getDatabase(this).noteDao()
@@ -46,22 +55,33 @@ class AddNoteActivity : AppCompatActivity() {
         // Used lambda expression for OnClickListener
         //////////////////////////////////////////////
         floatingActionButton.setOnClickListener {
+            if (noteId === null)
             //////////////////////////////////////////
             //check if the EditText have values or not
             //////////////////////////////////////////
-            if (et_subject.text.toString().isNotEmpty()) {
-                DbAsync(this).execute(
+                if (et_subject.text.toString().isNotEmpty()) {
+                    DbAsync(this).execute(
+                        Note(
+                            0,
+                            et_subject.text.toString(),
+                            et_description.text.toString(),
+                            System.currentTimeMillis()
+                        )
+                    )
+                    et_subject.text.clear()
+                    et_description.text.clear()
+                } else {
+                    Toast.makeText(this, "Please add subject", Toast.LENGTH_SHORT).show()
+                }
+            else {
+                UpdateNoteDbAsyncTask().execute(
                     Note(
-                        0,
+                        noteId!!,
                         et_subject.text.toString(),
                         et_description.text.toString(),
                         System.currentTimeMillis()
                     )
                 )
-                et_subject.text.clear()
-                et_description.text.clear()
-            } else {
-                Toast.makeText(this, "Please add subject", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -98,4 +118,18 @@ class AddNoteActivity : AppCompatActivity() {
     }
 
 
+    inner class UpdateNoteDbAsyncTask : AsyncTask<Note, Void, Int>() {
+
+        override fun doInBackground(vararg params: Note): Int {
+            return repository.updateNote(params[0])
+        }
+
+        override fun onPostExecute(result: Int?) {
+            super.onPostExecute(result)
+            if (result == 1)
+                Toast.makeText(this@AddNoteActivity, "Saved", Toast.LENGTH_SHORT).show()
+            this@AddNoteActivity.finish()
+        }
+
+    }
 }

@@ -24,7 +24,12 @@ class NoteRepository(private val noteDao: NoteDao) {
     }
 
     @WorkerThread
-    fun openSelectedNote(id: Long) {
-        return noteDao.selectNote(id)
+    fun getSelectedNote(id: Long?): Note {
+        return noteDao.selectNote(id!!)
+    }
+
+    @WorkerThread
+    fun updateNote(note: Note): Int {
+        return noteDao.updateNote(note)
     }
 }
