@@ -3,6 +3,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
+
+//Needed for DataBinding
 apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion 28
@@ -19,6 +21,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    dataBinding {
+        enabled = true;
     }
 }
 
@@ -49,6 +54,9 @@ dependencies {
     // Coroutines
    // api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutines"
    // api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutines"
+
+    //DataBinding
+    kapt "com.android.databinding:compiler:1.0.0"
 
     implementation 'com.facebook.stetho:stetho:1.5.1'
     implementation 'com.google.android.material:material:1.0.0'
