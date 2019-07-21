@@ -4,10 +4,13 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.arnab.notepad.R
+import com.arnab.notepad.databinding.ActivityAddNoteBinding
 import com.arnab.notepad.db.NoteDatabase
 import com.arnab.notepad.db.NoteRepository
 import com.arnab.notepad.models.Note
+import com.arnab.notepad.views.viewhelpers.ObservableEditText
 import kotlinx.android.synthetic.main.activity_add_note.*
 import java.lang.ref.WeakReference
 
@@ -16,6 +19,9 @@ class AddNoteActivity : AppCompatActivity() {
 
     lateinit var repository: NoteRepository
     var noteId: Long? = null
+    lateinit var binding: ActivityAddNoteBinding
+    val titleEditText = ObservableEditText()
+    val contentEditText = ObservableEditText()
 
     companion object {
         //This is compile one time only. So taking currentTime like this is a wrong way.
@@ -24,16 +30,27 @@ class AddNoteActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_note)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_add_note)
+
+        //Binding can be done this way for multiple variable
+        binding.apply {
+            title = titleEditText
+            content = contentEditText
+        }
+        //Or we can do Binding normally in this way for single item
+        //binding.title = titleEditText
+        //binding.content = contentEditText
 
         val bundle = intent.extras
-        noteId = bundle?.getLong("NoteId")
-        val title: String? = bundle?.getString("title")
-        val content: String? = bundle?.getString("content")
+        if (bundle != null) {
 
-        et_subject.setText(title)
-        et_description.setText(content)
+            noteId = bundle.getLong("NoteId")
+            val titleString: String = bundle.getString("title")!!
+            val contentString: String = bundle.getString("content")!!
 
+            titleEditText.text = titleString
+            contentEditText.text = contentString
+        }
 
         val noteDao = NoteDatabase.getDatabase(this).noteDao()
         repository = NoteRepository(noteDao)
@@ -45,7 +62,7 @@ class AddNoteActivity : AppCompatActivity() {
         val runnable = Runnable {
             for (count in 1..100) {
                 Thread.sleep(5000)
-                DbAsync(this).execute()
+                InsertNoteDbAsync(this).execute()
             }
         }
         val thread = Thread(runnable)
@@ -60,11 +77,11 @@ class AddNoteActivity : AppCompatActivity() {
             //check if the EditText have values or not
             //////////////////////////////////////////
                 if (et_subject.text.toString().isNotEmpty()) {
-                    DbAsync(this).execute(
+                    InsertNoteDbAsync(this).execute(
                         Note(
                             0,
-                            et_subject.text.toString(),
-                            et_description.text.toString(),
+                            titleEditText.text,
+                            contentEditText.text,
                             System.currentTimeMillis()
                         )
                     )
@@ -77,8 +94,8 @@ class AddNoteActivity : AppCompatActivity() {
                 UpdateNoteDbAsyncTask().execute(
                     Note(
                         noteId!!,
-                        et_subject.text.toString(),
-                        et_description.text.toString(),
+                        titleEditText.text,
+                        contentEditText.text,
                         System.currentTimeMillis()
                     )
                 )
@@ -103,7 +120,7 @@ class AddNoteActivity : AppCompatActivity() {
     //////////////////////////////////////////
     // This way we can avoid the Memory leaks
     //////////////////////////////////////////
-    private class DbAsync internal constructor(context: AddNoteActivity) : AsyncTask<Note, Void, Void>() {
+    private class InsertNoteDbAsync internal constructor(context: AddNoteActivity) : AsyncTask<Note, Void, Void>() {
         private val activityReference: WeakReference<AddNoteActivity> = WeakReference(context)
         override fun doInBackground(vararg params: Note): Void? {
             activityReference.get()?.repository?.insert(params[0])
