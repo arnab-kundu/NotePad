@@ -5,7 +5,7 @@ import androidx.databinding.Bindable;
 
 public class ObservableEditText extends BaseObservable {
 
-    private String text;
+    private String text = "";
 
     @Bindable
     public String getText() {
