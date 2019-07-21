@@ -56,13 +56,20 @@ class AddNoteActivity : AppCompatActivity() {
         repository = NoteRepository(noteDao)
 
 
-        ////////////////////////////
-        // Thread and Runnable code
-        ////////////////////////////
+        /////////////////////////////////////////////////////////////////
+        // Thread and Runnable code For checking LiveData working or not
+        /////////////////////////////////////////////////////////////////
         val runnable = Runnable {
-            for (count in 1..100) {
+            for (count in 1..5) {
                 Thread.sleep(5000)
-                InsertNoteDbAsync(this).execute()
+                InsertNoteDbAsync(this).execute(
+                    Note(
+                        0,
+                        titleEditText.text,
+                        contentEditText.text,
+                        System.currentTimeMillis()
+                    )
+                )
             }
         }
         val thread = Thread(runnable)
@@ -76,7 +83,7 @@ class AddNoteActivity : AppCompatActivity() {
             //////////////////////////////////////////
             //check if the EditText have values or not
             //////////////////////////////////////////
-                if (et_subject.text.toString().isNotEmpty()) {
+                if (titleEditText.text.isNotEmpty()) {
                     InsertNoteDbAsync(this).execute(
                         Note(
                             0,
@@ -85,8 +92,8 @@ class AddNoteActivity : AppCompatActivity() {
                             System.currentTimeMillis()
                         )
                     )
-                    et_subject.text.clear()
-                    et_description.text.clear()
+                    titleEditText.text = ""
+                    contentEditText.text = ""
                 } else {
                     Toast.makeText(this, "Please add subject", Toast.LENGTH_SHORT).show()
                 }
