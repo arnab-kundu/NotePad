@@ -9,7 +9,7 @@ import com.arnab.notepad.R
 import com.arnab.notepad.models.Note
 import kotlinx.android.synthetic.main.row_note.view.*
 
-class NoteListAdapter(val notes: ArrayList<Note>, var noteListItemClickListener: NoteListItemClickListener) :
+class NoteListAdapter(var notes: List<Note>, var noteListItemClickListener: NoteListItemClickListener) :
     RecyclerView.Adapter<NoteListAdapter.NoteViewHolder>() {
 
     //lateinit var noteListItemClickListener: NoteListItemClickListener
@@ -58,11 +58,16 @@ class NoteListAdapter(val notes: ArrayList<Note>, var noteListItemClickListener:
         notifyItemRemoved(position)
     }
 
-    fun getData(): ArrayList<Note> {
+    fun getData(): List<Note> {
         return notes
     }
 
     interface NoteListItemClickListener {
         fun onItemClick(noteId: Long)
+    }
+
+    fun setData(data: List<Note>){
+        notes = data
+        notifyDataSetChanged()
     }
 }

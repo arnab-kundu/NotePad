@@ -4,7 +4,10 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.arnab.notepad.R
@@ -13,6 +16,7 @@ import com.arnab.notepad.db.NoteDatabase
 import com.arnab.notepad.db.NoteRepository
 import com.arnab.notepad.models.Note
 import com.arnab.notepad.models.dao.NoteDao
+import com.arnab.notepad.viewModels.MainActivityViewModel
 import com.arnab.notepad.views.SwipeToDeleteCallback
 import com.arnab.notepad.views.adapter.NoteListAdapter
 import com.google.android.material.snackbar.Snackbar
@@ -39,7 +43,11 @@ class MainActivity : AppCompatActivity(), NoteListAdapter.NoteListItemClickListe
         //////////////////////////////////////////////////////////////////////////////
         recycler_view.adapter = NoteListAdapter(notes, this)
         mAdapter = recycler_view.adapter as NoteListAdapter
-
+        val viewModel: MainActivityViewModel = ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
+        viewModel.allNotesLive.observe(this, Observer() {
+            mAdapter.setData(it)
+            Log.d("msg","coming")
+        })
         //////////////////////////////////////////
         // Button Click Using Lambda expression
         //////////////////////////////////////////
@@ -104,7 +112,7 @@ class MainActivity : AppCompatActivity(), NoteListAdapter.NoteListItemClickListe
                 val thread = Thread(runnable)
                 thread.start()
                 //mAdapter.removeItem(position)
-                mAdapter.notifyDataSetChanged()
+                //mAdapter.notifyDataSetChanged()
 
 
                 val snackbar = Snackbar.make(root, "Item was removed from the list.", Snackbar.LENGTH_LONG)

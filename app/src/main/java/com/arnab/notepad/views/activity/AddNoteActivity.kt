@@ -61,7 +61,7 @@ class AddNoteActivity : AppCompatActivity() {
         /////////////////////////////////////////////////////////////////
         val runnable = Runnable {
             for (count in 1..5) {
-                Thread.sleep(5000)
+                Thread.sleep(1000)
                 InsertNoteDbAsync(this).execute(
                     Note(
                         0,

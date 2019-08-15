@@ -1,6 +1,7 @@
 package com.arnab.notepad.db
 
 import androidx.annotation.WorkerThread
+import androidx.lifecycle.LiveData
 import com.arnab.notepad.models.Note
 import com.arnab.notepad.models.dao.NoteDao
 
@@ -16,6 +17,11 @@ class NoteRepository(private val noteDao: NoteDao) {
     @WorkerThread
     fun getAllNotes(): List<Note> {
         return noteDao.getAllNotes()
+    }
+
+    @WorkerThread
+    fun getAllNotesLive(): LiveData<List<Note>> {
+        return noteDao.getAllNotesLive()
     }
 
     @WorkerThread
