@@ -16,7 +16,6 @@ import com.arnab.notepad.db.NoteDatabase
 import com.arnab.notepad.db.NoteRepository
 import com.arnab.notepad.models.Note
 import com.arnab.notepad.models.dao.NoteDao
-import com.arnab.notepad.viewModels.MainActivityViewModel
 import com.arnab.notepad.views.SwipeToDeleteCallback
 import com.arnab.notepad.views.adapter.NoteListAdapter
 import com.google.android.material.snackbar.Snackbar
@@ -43,11 +42,11 @@ class MainActivity : AppCompatActivity(), NoteListAdapter.NoteListItemClickListe
         //////////////////////////////////////////////////////////////////////////////
         recycler_view.adapter = NoteListAdapter(notes, this)
         mAdapter = recycler_view.adapter as NoteListAdapter
-        val viewModel: MainActivityViewModel = ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
-        viewModel.allNotesLive.observe(this, Observer() {
+        /*val viewModel: MainActivityViewModel = ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
+        viewModel.notes?.observe(this, Observer() {
             mAdapter.setData(it)
             Log.d("msg","coming")
-        })
+        })*/
         //////////////////////////////////////////
         // Button Click Using Lambda expression
         //////////////////////////////////////////
